@@ -10,17 +10,23 @@ container_client = blob_service_client.get_container_client(CONTAINER_NAME)
 # Set up Flask app
 app = Flask(__name__)
 
-# Define API endpoint
-@app.route('/api/latest-image-url')
-def get_latest_image_url():
+# Define route to display the latest image
+@app.route('/')
+def display_latest_image():
     # List all blobs in the container
     blob_list = container_client.list_blobs()
 
     # Get the latest blob (which has the largest timestamp in the name)
     latest_blob = max(blob_list, key=lambda x: x.name)
 
-    # Return the URL of the latest blob
-    return jsonify(url=blob_service_client.primary_endpoint + CONTAINER_NAME + "/" + latest_blob.name)
+    # Return an HTML page with the latest image
+    return f"""
+        <html>
+            <body>
+                <img src="{blob_service_client.primary_endpoint}{CONTAINER_NAME}/{latest_blob.name}">
+            </body>
+        </html>
+    """
 
 # Run the Flask app
 if __name__ == '__main__':
